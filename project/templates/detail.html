@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+{% block title %} Detail {% endblock %}
+
+
+
+{% block body %}
+
+
+
+<!-- Flash message-->
+<div class="container" style="max-width: 800px">
+    <div class="row">
+        <div class="col">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-dismissible fade show position-absolute" role="alert">
+                {{message}}
+                <button type="button" class="btn-group btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Container, customer information, insert and home button-->
+<div class="container py-5" style="max-width: 800px; min-width: 700px">
+    <div class="row bg-light px-3">
+        <div class="col pt-3 pb-2">
+            <h1>{{customer.name}} {{customer.surname}}</h1>
+            <span class="text-muted">PIN: {{customer.pin}}</span>
+        </div>
+        <div class="col pt-5">
+            <button type="button" class="float-end btn btn-success "
+            data-bs-toggle="modal" data-bs-target="#add_cont">Add new contract</button>
+            <button onclick="window.location.href='/';" type="button" class="mx-1 float-end btn btn-outline-secondary">Home</button>
+        </div>
+
+
+
+        <!-- Add contract modal popup-->
+        <div id="add_cont" class="modal fade" role="dialog" data-bs-backdrop="static">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header py-3 bg-light">
+                            <h4 class="modal-tittle">Add New Contract</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="container">
+                            <div class="modal-body row g-3 align-items-start">
+
+
+                                <!-- Add contract form-->
+                                <form action="{{url_for('contract_insert')}}" method="POST">
+                                    <input type="text" class="d-none" value="{{customer.pin}}" name="customer">
+                                    <div class="my-3 col-auto">
+                                        <label>Contract Number</label>
+                                        <input class="form-control" type="number" required name="c_num">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label for="types">Insurance Type</label>
+                                            <select id="types" name="c_type" class="form-select">
+                                                <option value="property">Property Insurance</option>
+                                                <option value="life">Life Insurance</option>
+                                                <option value="health">Health Insurance</option>
+                                                <option value="disability">Disability Insurance</option>
+                                                <option value="car">Car Insurance</option>
+                                            </select>
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Premium</label>
+                                        <input class="form-control" type="number" required name="c_premium">
+                                    </div>
+                                    <div class="modal-footer py-0 pt-3">
+                                        <button class="btn btn-primary px-4" type="submit">Add</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+
+
+    <!-- Table with Contracts data-->
+    <div class="row">
+        <table class="table table-light mx-2 mt-3">
+            <tr>
+                <th>Contract number</th>
+                <th>Insurance type</th>
+                <th>Premium</th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% for row in contract %}
+            <tr class="align-middle">
+                <td>{{row.contract_number}}</td>
+                <td>{{row.insurance_type}}</td>
+                <td>{{row.premium}}</td>
+                <td></td>
+                <td>
+                    <div class="row float-end">
+
+
+
+                        <!-- Edit and Delete buttons for each entry-->
+                        <button class="col-auto btn btn-light" type="button" data-bs-toggle="modal"
+                                data-bs-target="#edit_cont{{row.contract_id}}">Edit</button>
+                        <form class="col" action="/contract_delete/{{row.contract_id}}" method="POST">
+                            <input type="text" class="d-none" name="customer" value="{{customer.pin}}">
+
+                            <button class="col-auto btn btn-outline-danger"
+                                    onclick="return confirm('Are you sure?')"
+                                    type="submit">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+
+
+        <!-- Edit contract modal-->
+        {% for row in contract %}
+        <div id="edit_cont{{row.contract_id}}" class="modal fade" role="dialog" data-bs-backdrop="static">
+            <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header py-3 bg-light">
+                            <h4 class="modal-tittle">Edit Contract</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="container">
+                            <div class="modal-body row g-3 align-items-start">
+
+
+                                <!-- Edit contract form-->
+                                <form action="{{url_for('contract_edit')}}" method="POST">
+                                    <input type="text" class="d-none" value="{{row.contract_id}}" name="contract">
+                                    <input type="text" class="d-none" value="{{customer.pin}}" name="customer">
+                                    <div class="my-3 col-auto">
+                                        <label>Contract Number</label>
+                                        <input class="form-control" type="number" required name="c_num" value="{{row.contract_number}}">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label for="u_types">Insurance Type</label>
+                                            <select id="u_types" name="c_type" class="form-select">
+                                                <option value="property">Property Insurance</option>
+                                                <option value="life">Life Insurance</option>
+                                                <option value="health">Health Insurance</option>
+                                                <option value="disability">Disability Insurance</option>
+                                                <option value="car">Car Insurance</option>
+                                            </select>
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Premium</label>
+                                        <input class="form-control" type="number" required name="c_premium" value="{{row.premium}}">
+                                    </div>
+                                    <div class="modal-footer py-0 pt-3">
+                                        <button class="btn btn-primary px-4" type="submit">Edit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

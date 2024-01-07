@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+
+
+
+{% block title %} HOME {% endblock %}
+
+
+
+<!-- Flash message -->
+{% block body %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-dismissible fade show position-absolute" role="alert">
+                {{message}}
+                <button type="button" class="btn-group btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Container box, search bar and add button-->
+<div class="container bg-light pt-3 px-5" style="min-width: 575px">
+    <div class="row">
+        <h2 class="mb-3">Manage <strong>Customers</strong>
+            <button type="button" class="float-end btn btn-success"
+            data-bs-toggle="modal" data-bs-target="#insertmodal">Add new policyholder</button>
+        </h2>
+        <!-- Searchbar-->
+        <form method="GET">
+        <input type="search" class="mb-2 form-control" placeholder="Search" name="q">
+        </form>
+
+
+
+        <!-- Table containing database data-->
+        <div class="container pe-4">
+            <table class="table table-light mx-2">
+                    <tr>
+                       <th>PIN</th>
+                       <th>Name</th>
+                       <th>Surname</th>
+                       <th>Birth Date</th>
+                       <th></th>
+                       <th></th>
+                    </tr>
+                    {% for row in show %}
+                    <tr class="align-middle">
+                        <td>{{row.pin}}</td>
+                        <td>{{row.name}}</td>
+                        <td>{{row.surname}}</td>
+                        <td>{{row.birthdate}}</td>
+                        <td></td>
+                        <td>
+
+
+                            <!-- Dropdown detail/edit/delete buttons for each row-->
+                            <div class="btn-group dropend">
+                                <button type="button" class="text-muted btn btn-light dropdown-toggle" id="dropdown{{row.c_id}}" data-bs-toggle="dropdown" aria-expanded="false">
+                                options</button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdown{{row.id}}">
+                                        <li><a href="/update/{{row.c_id}}" class="dropdown-item"
+                                               data-bs-toggle="modal" data-bs-target="#modaledit{{row.c_id}}">Edit</a></li>
+                                        <li><a href="/detail/{{row.pin}}" class="dropdown-item ">Detail</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a href="/delete/{{row.c_id}}" class="dropdown-item"
+                                           onclick="return confirm('This will also delete all of their contracts. Are you Sure you wish to proceed?')">Delete</a></li>
+                                    </ul>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+
+
+            <!-- Modal popup for add button-->
+            <div id="insertmodal" class="modal fade" role="dialog" data-bs-backdrop="static">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header py-3 bg-light">
+                            <h4 class="modal-tittle">Add New Policyholder</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="container">
+                            <div class="modal-body row g-3 align-items-start">
+
+
+                                <!-- Add customer form-->
+                                <form action="{{url_for('insert')}}" method="POST">
+                                    <div class="my-3 col-auto">
+                                        <label>Personal identification number</label>
+                                        <input class="form-control" type="text" pattern="\d*" minlength="10" maxlength="10" required name="pin" placeholder="PIN without / symbol">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Name</label>
+                                        <input class="form-control" type="text" required name="name">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Surname</label>
+                                        <input class="form-control" type="text" required name="surname">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Date of Birth</label>
+                                        <input class="form-control" type="date" required name="birthdate" placeholder="0000-00-00">
+                                    </div>
+                                    <div class="modal-footer py-0 pt-3">
+                                        <button class="btn btn-primary px-4" type="submit">Add</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Modal popup for edit button-->
+            {% for row in show %}
+            <div id="modaledit{{row.c_id}}" class="modal fade" role="dialog" data-bs-backdrop="static">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light">
+                            <h4 class="modal-tittle">Edit policyholder</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="container">
+                            <div class="modal-body row g-3 align-items-center">
+
+
+                                <!-- Edit customer form-->
+                                <form action="{{url_for('update')}}" method="POST">
+                                    <input type="text" class="d-none" value="{{row.c_id}}" name="c_id">
+                                    <div class="my-3 col-auto">
+                                        <label>Personal identification number</label>
+                                        <input class="form-control" type="text" pattern="\d*" minlength="10" maxlength="10" required name="pin" placeholder="PIN without / symbol" value="{{row.pin}}">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Name</label>
+                                        <input class="form-control" type="text" required name="name" value="{{row.name}}">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Surname</label>
+                                        <input class="form-control" type="text" required name="surname" value="{{row.surname}}">
+                                    </div>
+                                    <div class="my-3 col-auto">
+                                        <label>Date of Birth</label>
+                                        <input class="form-control" type="date" required name="birthdate" placeholder="0000-00-00" value="{{row.birthdate}}">
+                                    </div>
+                                    <div class="modal-footer py-0 pt-3">
+                                        <button class="btn btn-primary px-4" type="submit">Update</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+    </div>
+</div>
+{% endblock %}
