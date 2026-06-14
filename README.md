@@ -7,7 +7,7 @@ Umožňuje:
 - Vytvářet nové zázamy klientů.
 - Vytvářet záznamy smluv u konkrétního klienta.
 - Upravovat záznamy.
-- Mazat záznamy
+- Mazat záznamy.
 
 ## Technologie
 **Backend**:
